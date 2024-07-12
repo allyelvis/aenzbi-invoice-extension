@@ -1,0 +1,45 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main  # adjust to your main branch name
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Chrome Extension
+        run: npm run build  # adjust this command based on your build setup
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.GH_PAGES_DEPLOY_KEY }}
+          publish_dir: ./dist  # adjust to your build output directory
+          cname: your-custom-domain.com  # optional: custom domain for GitHub Pages
+
+      - name: Publish to Chrome Web Store
+        uses: whatthefoo/chrome-extension@v3
+        with:
+          chrome-web-store-client-id: ${{ secrets.CHROME_WEB_STORE_CLIENT_ID }}
+          chrome-web-store-client-secret: ${{ secrets.CHROME_WEB_STORE_CLIENT_SECRET }}
+          extension-id: your-extension-id  # replace with your Chrome Extension ID
+          zip-file: ./path/to/your/extension.zip  # adjust to your extension's zip file path
