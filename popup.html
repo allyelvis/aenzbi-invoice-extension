@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice Form - Aenzbi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 300px;
+        }
+        fieldset {
+            margin-bottom: 15px;
+        }
+        input {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+        }
+        th, td {
+            text-align: left;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Invoice Form - Aenzbi</h1>
+    <form id="invoiceForm">
+        <fieldset>
+            <legend>A. Identification du vendeur</legend>
+            Nom et prénom ou Raison sociale: <input type="text" id="sellerName" required><br>
+            NIF: <input type="text" id="sellerNIF" required><br>
+            Registre de Commerce N°: <input type="text" id="sellerRegistre" required><br>
+            B.P: <input type="text" id="sellerBP"><br>
+            Téléphone: <input type="text" id="sellerPhone"><br>
+            Commune: <input type="text" id="sellerCommune"><br>
+            Quartier: <input type="text" id="sellerQuartier"><br>
+            Av.: <input type="text" id="sellerAvenue"><br>
+            Rue: <input type="text" id="sellerRue"><br>
+            N°: <input type="text" id="sellerNumber"><br>
+            Assujetti à la TVA: <input type="checkbox" id="sellerTVA"><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>B. Le client</legend>
+            Nom et prénom ou Raison sociale: <input type="text" id="clientName" required><br>
+            NIF: <input type="text" id="clientNIF" required><br>
+            Résident à: <input type="text" id="clientResident"><br>
+            Assujetti à la TVA: <input type="checkbox" id="clientTVA"><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Invoice Details</legend>
+            <table id="invoiceTable">
+                <tr>
+                    <th>Nature de l’article ou service</th>
+                    <th>Qté</th>
+                    <th>PU</th>
+                    <th>PVHTVA</th>
+                </tr>
+                <tr>
+                    <td><input type="text" name="article" required></td>
+                    <td><input type="number" name="quantity" required></td>
+                    <td><input type="number" name="price" required></td>
+                    <td><input type="number" name="total" required></td>
+                </tr>
+            </table>
+        </fieldset>
+
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <footer>&copy; Aenzbi</footer>
+    <script src="popup.js"></script>
+</body>
+</html>
