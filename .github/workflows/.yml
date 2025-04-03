@@ -1,0 +1,68 @@
+name: Main CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      FAUNA_SECRET: ${{ secrets.FAUNA_SECRET }}
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install Fauna CLI
+      run: npm install -g fauna-shell
+
+    - name: Stage schema
+      run: fauna schema push \
+        --dir ./path/to/schema/dir \
+        --secret $FAUNA_SECRET \
+        --no-input
+
+
+    - name: Check schema status
+      id: schema-check
+      run: |
+        attempts=0
+        max_attempts=60  # 30 minutes with 30-second intervals
+        while [ $attempts -lt $max_attempts ]; do
+          STATUS=$(fauna schema status --secret $FAUNA_SECRET | grep -oP '(?<=Staged changes: )\w+')
+          echo "Current status: $STATUS"
+          if [ "$STATUS" = "ready" ]; then
+            echo "Schema is ready"
+            echo "schema_status=ready" >> $GITHUB_OUTPUT
+            exit 0
+          elif [ "$STATUS" = "failed" ]; then
+            echo "Schema staging failed"
+            echo "schema_status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "Waiting for schema to be ready..."
+          sleep 30
+          attempts=$((attempts + 1))
+        done
+        echo "Timeout waiting for schema status"
+        echo "schema_status=timeout" >> $GITHUB_OUTPUT
+        exit 1
+
+    - name: Commit or abandon schema
+      if: always()
+      run: |
+        if [[ "${{ steps.schema-check.outputs.schema_status }}" == "ready" ]]; then
+          fauna schema commit --secret $FAUNA_SECRET --no-input
+        else
+          fauna schema abandon --secret $FAUNA_SECRET --no-input
+        fi
